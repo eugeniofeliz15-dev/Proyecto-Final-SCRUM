@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaExceptionFilter } from './common/filters/prisma-exception.filter.js';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { getAllowedOrigins } from './config/cors.js';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, {
@@ -18,10 +19,9 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  const configService = app.get(ConfigService);
   app.enableCors({
-    origin: [
-      'http://localhost:5173',
-    ],
+    origin: getAllowedOrigins(configService.get<string>('CORS_ORIGINS')),
     methods: ['GET', 'POST', 'PATCH', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -47,7 +47,6 @@ async function bootstrap() {
   const documentFactory = () => SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, documentFactory);
 
-  const configService = app.get(ConfigService);
   await app.listen(configService.getOrThrow<number>('PORT'));
 }
 await bootstrap();
