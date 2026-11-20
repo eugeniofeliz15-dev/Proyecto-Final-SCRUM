@@ -1,5 +1,25 @@
 # 📚 Documentación del proyecto
 
+## Despliegue en Vercel, Render y Supabase
+
+- El frontend se despliega en Vercel. Configura `VITE_API_BASE_URL` con la URL
+  pública de la API desplegada en Render.
+- La API NestJS se despliega como servicio persistente en Render. Configura allí
+  `NODE_ENV=production`, `DATABASE_URL` con la cadena **Session Pooler** de
+  Supabase (puerto `5432`), `CORS_ORIGINS` con el dominio exacto de Vercel y un
+  `JWT_SECRET` seguro de al menos 32 caracteres. Render proporciona la variable
+  `PORT`.
+- Para desarrollo local, `CORS_ORIGINS` puede omitirse y usa
+  `http://localhost:5173` por defecto. En producción es obligatoria; se pueden
+  permitir varios orígenes separados por comas.
+- Guarda la contraseña de Supabase solo en `.env` local o en las variables
+  secretas de Render. Reemplaza el marcador de contraseña de la URL y codifica
+  los caracteres reservados. No subas `.env` a Git.
+- Prisma 7 usa `prisma.config.ts` para apuntar los comandos de migración a
+  `DATABASE_URL`. En Render, el comando de compilación puede ser
+  `npm ci && npx prisma generate && npm run build`, y el de inicio
+  `npx prisma migrate deploy && npm run start:prod`.
+
 ## 🔐 Uso de Decoradores y Guards
 
 Estos decoradores permiten controlar el acceso a los diferentes endpoints de la aplicación.

@@ -3,9 +3,17 @@ import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 import { Logger } from '@nestjs/common';
+import { getAllowedOrigins } from '../config/cors.js';
+
+function isAllowedOrigin(origin: string | undefined): boolean {
+    return !origin || getAllowedOrigins(process.env.CORS_ORIGINS).includes(origin);
+}
 
 @WebSocketGateway({
-    cors: { origin: '*' }, // En producción se restringe al dominio del frontend
+    cors: {
+        origin: (origin, callback) => callback(null, isAllowedOrigin(origin)),
+        credentials: true,
+    },
 })
 export class NotificacionesGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @WebSocketServer()
